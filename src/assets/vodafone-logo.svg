@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 80">
+  <defs>
+    <linearGradient id="vodafoneGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e60000;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#cc0000;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <circle cx="40" cy="40" r="25" fill="url(#vodafoneGrad)" stroke="#fff" stroke-width="2"/>
+  <circle cx="40" cy="40" r="12" fill="#fff"/>
+  <text x="75" y="50" font-family="Arial, sans-serif" font-size="28" font-weight="bold" fill="#e60000">vodafone</text>
+</svg>
