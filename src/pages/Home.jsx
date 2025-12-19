@@ -28,7 +28,7 @@ const operators = [
     id: 'vi',
     name: 'Vi',
     description: 'Premium postpaid experience',
-    logo: 'https://s.yimg.com/fz/api/res/1.2/__gkjj0PdmI25FfLh9vmcQ--~C/YXBwaWQ9c3JjaGRkO2g9MTQ0O3E9ODA7dz0xNDQ-/https://s.yimg.com/zb/imgv1/b4c4f890-3927-3b9a-a8e8-68288fc852ab/t_500x300',
+    logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Vodafone_Idea_logo.svg/1131px-Vodafone_Idea_logo.svg.png',
   },
   {
     id: 'bsnl',
@@ -37,6 +37,21 @@ const operators = [
     logo: 'https://static.vecteezy.com/system/resources/previews/051/805/644/non_2x/bsnl-transparent-orange-color-logo-free-png.png',
   },
 ];
+
+// Logo mapping to ensure consistent logos across the app
+const operatorLogos = {
+  airtel: 'https://s.yimg.com/zb/imgv1/4b6c4320-7846-39f4-8b72-13a3348db670/t_500x300',
+  jio: 'https://logos-world.net/wp-content/uploads/2020/11/Jio-Logo.png',
+  vi: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Vodafone_Idea_logo.svg/1131px-Vodafone_Idea_logo.svg.png',
+  vodafone: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Vodafone_Idea_logo.svg/1131px-Vodafone_Idea_logo.svg.png',
+  bsnl: 'https://static.vecteezy.com/system/resources/previews/051/805/644/non_2x/bsnl-transparent-orange-color-logo-free-png.png',
+};
+
+// Helper function to get correct logo for an operator
+const getOperatorLogo = (operatorName) => {
+  const name = operatorName?.toLowerCase();
+  return operatorLogos[name] || operatorLogos.airtel;
+};
 
 // Professional promotional banners with images (swapped from Plans page)
 const promoBanners = [
@@ -185,6 +200,38 @@ const Home = () => {
       setRechargeAmount(0);
     }
   }, [location.search, setContextSelectedOperator, setRechargeAmount]);
+
+  // Handle navigation from Plans page with selected plan
+  useEffect(() => {
+    if (location.state?.selectedPlan) {
+      const plan = location.state.selectedPlan;
+      const step = location.state.step || 3;
+
+      // Use operator from state if provided, otherwise find matching operator
+      if (location.state.selectedOperator) {
+        const operator = location.state.selectedOperator;
+        setSelectedOperator(operator);
+        setContextSelectedOperator(operator);
+      } else {
+        // Find the matching operator
+        const operatorId = plan.operator?.toLowerCase();
+        const normalizedOperator = operatorId === 'vodafone' ? 'vi' : operatorId;
+        const matchedOperator = operators.find((item) => item.id === normalizedOperator);
+
+        if (matchedOperator) {
+          setSelectedOperator(matchedOperator);
+          setContextSelectedOperator(matchedOperator);
+        }
+      }
+
+      setSelectedPlan(plan);
+      setRechargeAmount(plan.price);
+      setCurrentStep(step);
+
+      // Clear the state to prevent re-triggering on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, setContextSelectedOperator, setRechargeAmount]);
 
   const normalizedSelectedId = selectedOperator?.id === 'vodafone' ? 'vi' : selectedOperator?.id;
 
@@ -714,7 +761,7 @@ const Home = () => {
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center p-2">
+                    <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center p-2 shadow-md">
                       <img
                         src={completedOperator?.logo}
                         alt={`${completedOperator?.name ?? 'Operator'} logo`}
@@ -799,9 +846,9 @@ const Home = () => {
                     className="flex items-center justify-between p-4 bg-slate-800/60 border border-slate-700 rounded-2xl"
                   >
                     <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-slate-900/80 rounded-2xl flex items-center justify-center p-2 border border-slate-700">
+                      <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2 shadow-md">
                         <img
-                          src={recharge.operator?.logo}
+                          src={getOperatorLogo(recharge.operator?.name)}
                           alt={`${recharge.operator?.name ?? 'Operator'} logo`}
                           className="w-full h-full object-contain"
                         />

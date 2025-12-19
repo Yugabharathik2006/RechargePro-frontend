@@ -5,6 +5,21 @@ import Button from '../components/Button';
 import { Search, Filter, Download, Calendar, TrendingUp, CreditCard, Smartphone, Eye } from 'lucide-react';
 import Modal from '../components/Modal';
 
+// Logo mapping to ensure consistent logos across the app
+const operatorLogos = {
+  airtel: 'https://s.yimg.com/zb/imgv1/4b6c4320-7846-39f4-8b72-13a3348db670/t_500x300',
+  jio: 'https://logos-world.net/wp-content/uploads/2020/11/Jio-Logo.png',
+  vi: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Vodafone_Idea_logo.svg/1131px-Vodafone_Idea_logo.svg.png',
+  vodafone: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Vodafone_Idea_logo.svg/1131px-Vodafone_Idea_logo.svg.png',
+  bsnl: 'https://static.vecteezy.com/system/resources/previews/051/805/644/non_2x/bsnl-transparent-orange-color-logo-free-png.png',
+};
+
+// Helper function to get correct logo for an operator
+const getOperatorLogo = (operatorName) => {
+  const name = operatorName?.toLowerCase();
+  return operatorLogos[name] || operatorLogos.airtel;
+};
+
 const History = () => {
   const { rechargeHistory, fetchHistory } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
@@ -255,9 +270,9 @@ const History = () => {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className="w-14 h-14 bg-slate-900/80 rounded-xl flex items-center justify-center p-2 shadow-md border border-slate-800">
+                        <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center p-2 shadow-md">
                           <img
-                            src={transaction.operator.logo}
+                            src={getOperatorLogo(transaction.operator.name)}
                             alt={`${transaction.operator.name} logo`}
                             className="w-full h-full object-contain"
                           />
@@ -309,7 +324,7 @@ const History = () => {
             <div className="flex items-center space-x-4 mb-6">
               <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 shadow-md">
                 <img
-                  src={selectedTransaction.operator.logo}
+                  src={getOperatorLogo(selectedTransaction.operator.name)}
                   alt={`${selectedTransaction.operator.name} logo`}
                   className="w-full h-full object-contain"
                 />

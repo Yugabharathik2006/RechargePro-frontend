@@ -142,24 +142,55 @@ const RechargePlans = () => {
   });
 
   const handlePlanSelect = (plan) => {
-    // Set operator based on plan
+    // Set operator based on plan with proper logo URLs
     const operatorData = {
-      airtel: { id: 1, name: 'Airtel', icon: '🔴', description: "India's fastest 5G network" },
-      jio: { id: 2, name: 'Jio', icon: '🔵', description: 'Digital India ka network' },
-      vi: { id: 3, name: 'Vi', icon: '🟣', description: 'Be unlimited with Vi' },
-      bsnl: { id: 4, name: 'BSNL', icon: '🟡', description: 'Connecting India since 1854' }
+      airtel: {
+        id: 'airtel',
+        name: 'Airtel',
+        description: "India's fastest 5G network",
+        logo: 'https://s.yimg.com/zb/imgv1/4b6c4320-7846-39f4-8b72-13a3348db670/t_500x300'
+      },
+      jio: {
+        id: 'jio',
+        name: 'Jio',
+        description: 'Pan-India 4G & 5G coverage',
+        logo: 'https://logos-world.net/wp-content/uploads/2020/11/Jio-Logo.png'
+      },
+      vi: {
+        id: 'vi',
+        name: 'Vi',
+        description: 'Premium postpaid experience',
+        logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/72/Vodafone_Idea_logo.svg/1131px-Vodafone_Idea_logo.svg.png'
+      },
+      bsnl: {
+        id: 'bsnl',
+        name: 'BSNL',
+        description: 'Affordable nationwide plans',
+        logo: 'https://static.vecteezy.com/system/resources/previews/051/805/644/non_2x/bsnl-transparent-orange-color-logo-free-png.png'
+      }
     };
 
-    setSelectedOperator(operatorData[plan.operator]);
+    const operatorKey = plan.operator?.toLowerCase();
+    const operator = operatorData[operatorKey];
+
+    if (operator) {
+      setSelectedOperator(operator);
+    }
     setRechargeAmount(plan.price);
 
-    toast.success(`Selected ${plan.operator.toUpperCase()} ₹${plan.price} plan!`, {
+    toast.success(`Selected ${plan.operator?.toUpperCase()} ₹${plan.price} plan!`, {
       duration: 2000,
       position: 'top-center',
     });
 
-    // Navigate to home page with step 3 (payment)
-    navigate('/home', { state: { step: 3, selectedPlan: plan } });
+    // Navigate to home page with step 3 (payment) and pass the plan & operator data
+    navigate('/home', {
+      state: {
+        step: 3,
+        selectedPlan: plan,
+        selectedOperator: operator
+      }
+    });
   };
 
   const resetFilters = () => {
