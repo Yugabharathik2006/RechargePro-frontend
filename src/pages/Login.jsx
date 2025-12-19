@@ -3,74 +3,42 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import { useForm } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+
+const schema = yup.object().shape({
+  email: yup.string().email('Email is invalid').required('Email is required'),
+  password: yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
+});
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+  const { register, handleSubmit, formState: { errors } } = useForm({
+    resolver: yupResolver(schema)
   });
-  const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-    // Clear error when user starts typing
-    if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    
-    if (!formData.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = 'Email is invalid';
-    }
-    
-    if (!formData.password) {
-      newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-    
-    return newErrors;
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    const newErrors = validateForm();
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      return;
-    }
-    
+  const onSubmit = async (data) => {
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      // Mock successful login
-      login({
-        email: formData.email,
-        name: formData.email.split('@')[0]
-      });
-      
+
+    try {
+      const result = await login(data);
+
+      if (result.success) {
+        navigate('/home');
+      } else {
+        alert(result.message || 'Login failed');
+      }
+    } catch (error) {
+      console.error(error);
+      alert('An error occurred during login');
+    } finally {
       setIsLoading(false);
-      navigate('/home');
-    }, 1000);
+    }
   };
 
   return (
@@ -81,16 +49,16 @@ const Login = () => {
         <div className="absolute top-40 right-20 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-1000"></div>
         <div className="absolute bottom-20 left-40 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl animate-pulse delay-2000"></div>
       </div>
-      
+
       <div className="max-w-md w-full relative z-10">
-        
+
         {/* Back Button */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           className="mb-6"
         >
-          <Link 
+          <Link
             to="/"
             className="inline-flex items-center space-x-2 text-gray-600 hover:text-blue-600 transition-colors"
           >
@@ -98,15 +66,15 @@ const Login = () => {
             <span>Back to Welcome</span>
           </Link>
         </motion.div>
-        
+
         {/* Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="text-center mb-8"
         >
-          <motion.div 
+          <motion.div
             animate={{ rotate: [0, 5, -5, 0] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
             className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl"
@@ -118,14 +86,14 @@ const Login = () => {
         </motion.div>
 
         {/* Login Form */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
           className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl p-8 border border-white/20"
         >
-          <form onSubmit={handleSubmit} className="space-y-6">
-            
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+
             {/* Email Field */}
             <div>
               <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-3">
@@ -136,25 +104,22 @@ const Login = () => {
                 <input
                   type="email"
                   id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:outline-none focus:ring-2 transition-all duration-300 text-lg ${
-                    errors.email 
-                      ? 'border-red-500 focus:ring-red-500 bg-red-50' 
-                      : 'border-gray-200 focus:ring-blue-500 focus:border-blue-500 bg-white'
-                  }`}
+                  {...register('email')}
+                  className={`w-full pl-12 pr-4 py-4 border-2 rounded-2xl focus:outline-none focus:ring-2 transition-all duration-300 text-lg ${errors.email
+                    ? 'border-red-500 focus:ring-red-500 bg-red-50'
+                    : 'border-gray-200 focus:ring-blue-500 focus:border-blue-500 bg-white'
+                    }`}
                   placeholder="Enter your email"
                 />
               </div>
               {errors.email && (
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-2 text-sm text-red-600 flex items-center space-x-1"
                 >
                   <span>⚠️</span>
-                  <span>{errors.email}</span>
+                  <span>{errors.email.message}</span>
                 </motion.p>
               )}
             </div>
@@ -169,14 +134,11 @@ const Login = () => {
                 <input
                   type={showPassword ? "text" : "password"}
                   id="password"
-                  name="password"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className={`w-full pl-12 pr-12 py-4 border-2 rounded-2xl focus:outline-none focus:ring-2 transition-all duration-300 text-lg ${
-                    errors.password 
-                      ? 'border-red-500 focus:ring-red-500 bg-red-50' 
-                      : 'border-gray-200 focus:ring-blue-500 focus:border-blue-500 bg-white'
-                  }`}
+                  {...register('password')}
+                  className={`w-full pl-12 pr-12 py-4 border-2 rounded-2xl focus:outline-none focus:ring-2 transition-all duration-300 text-lg ${errors.password
+                    ? 'border-red-500 focus:ring-red-500 bg-red-50'
+                    : 'border-gray-200 focus:ring-blue-500 focus:border-blue-500 bg-white'
+                    }`}
                   placeholder="Enter your password"
                 />
                 <button
@@ -188,13 +150,13 @@ const Login = () => {
                 </button>
               </div>
               {errors.password && (
-                <motion.p 
+                <motion.p
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-2 text-sm text-red-600 flex items-center space-x-1"
                 >
                   <span>⚠️</span>
-                  <span>{errors.password}</span>
+                  <span>{errors.password.message}</span>
                 </motion.p>
               )}
             </div>
@@ -220,7 +182,7 @@ const Login = () => {
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
-                  <motion.div 
+                  <motion.div
                     animate={{ rotate: 360 }}
                     transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                     className="w-6 h-6 border-2 border-white border-t-transparent rounded-full mr-3"

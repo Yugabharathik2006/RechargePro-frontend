@@ -9,13 +9,19 @@
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
+    "@hookform/resolvers": "^5.2.2",
+    "@react-oauth/google": "^0.12.2",
+    "axios": "^1.13.2",
     "framer-motion": "^12.23.26",
+    "jwt-decode": "^4.0.0",
     "lucide-react": "^0.561.0",
     "react": "^18.2.0",
     "react-confetti": "^6.4.0",
     "react-dom": "^18.2.0",
+    "react-hook-form": "^7.68.0",
     "react-hot-toast": "^2.6.0",
-    "react-router-dom": "^6.8.0"
+    "react-router-dom": "^6.8.0",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.3",

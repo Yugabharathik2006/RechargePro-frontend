@@ -1,14 +1,15 @@
 import { motion } from 'framer-motion';
+import Button from './Button';
 import { Check, Zap, Phone, MessageSquare, Wifi } from 'lucide-react';
 
 const PlanCard = ({ plan, onSelect, isSelected = false, showOperator = false }) => {
   return (
-    <motion.div 
+    <motion.div
       whileHover={{ scale: 1.05, y: -10 }}
       whileTap={{ scale: 0.95 }}
       className="bg-white rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden relative"
     >
-      
+
       {/* Popular Badge */}
       {plan.popular && (
         <div className="absolute top-4 right-4 z-10">
@@ -19,12 +20,11 @@ const PlanCard = ({ plan, onSelect, isSelected = false, showOperator = false }) 
       )}
 
       {/* Header */}
-      <div className={`p-6 ${
-        plan.popular 
-          ? 'bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500' 
-          : 'bg-gradient-to-br from-gray-600 to-gray-700'
-      } text-white relative`}>
-        
+      <div className={`p-6 ${plan.popular
+        ? 'bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500'
+        : 'bg-gradient-to-br from-gray-600 to-gray-700'
+        } text-white relative`}>
+
         <div className="flex items-center justify-between">
           <div>
             <div className="text-3xl font-bold mb-1">₹{plan.price}</div>
@@ -44,9 +44,9 @@ const PlanCard = ({ plan, onSelect, isSelected = false, showOperator = false }) 
       {/* Content */}
       <div className="p-6">
         <div className="space-y-4 mb-6">
-          
+
           {/* Data */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.1 }}
@@ -60,9 +60,9 @@ const PlanCard = ({ plan, onSelect, isSelected = false, showOperator = false }) 
             </div>
             <span className="font-bold text-blue-600">{plan.data}</span>
           </motion.div>
-          
+
           {/* Calls */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.2 }}
@@ -76,10 +76,10 @@ const PlanCard = ({ plan, onSelect, isSelected = false, showOperator = false }) 
             </div>
             <span className="font-bold text-green-600">{plan.calls}</span>
           </motion.div>
-          
+
           {/* SMS */}
           {plan.sms && (
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
@@ -98,7 +98,7 @@ const PlanCard = ({ plan, onSelect, isSelected = false, showOperator = false }) 
 
         {/* Description */}
         {plan.description && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.35 }}
@@ -110,7 +110,7 @@ const PlanCard = ({ plan, onSelect, isSelected = false, showOperator = false }) 
 
         {/* Features */}
         {plan.features && plan.features.length > 0 && (
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -119,7 +119,7 @@ const PlanCard = ({ plan, onSelect, isSelected = false, showOperator = false }) 
             <h4 className="font-semibold text-gray-700 mb-3 text-sm">Included Benefits:</h4>
             <div className="space-y-2">
               {plan.features.slice(0, 3).map((feature, index) => (
-                <motion.div 
+                <motion.div
                   key={index}
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -140,18 +140,15 @@ const PlanCard = ({ plan, onSelect, isSelected = false, showOperator = false }) 
         )}
 
         {/* Select Button */}
-        <motion.button 
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+        <Button
           onClick={() => onSelect(plan)}
-          className={`w-full py-4 rounded-xl font-bold transition-all duration-300 ${
-            isSelected
-              ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
-              : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700'
-          }`}
+          className={`w-full py-4 rounded-xl font-bold ${isSelected
+            ? 'bg-gradient-to-r from-green-500 to-emerald-500 text-white'
+            : 'bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700'
+            }`}
         >
           {isSelected ? (
-            <motion.div 
+            <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               className="flex items-center justify-center space-x-2"
@@ -162,7 +159,7 @@ const PlanCard = ({ plan, onSelect, isSelected = false, showOperator = false }) 
           ) : (
             'Select Plan'
           )}
-        </motion.button>
+        </Button>
       </div>
     </motion.div>
   );

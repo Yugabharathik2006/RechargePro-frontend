@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>RechargeApp Diagnostic</title>
+    <style>
+        body {
+            font-family: Arial;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
+
+        .ok {
+            color: green;
+            font-weight: bold;
+        }
+
+        .error {
+            color: red;
+            font-weight: bold;
+        }
+
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>RechargeApp - Diagnostic Tool</h1>
+
+    <div class="card">
+        <h2>Frontend Status</h2>
+        <p id="frontend-status">Checking...</p>
+    </div>
+
+    <div class="card">
+        <h2>Backend Status</h2>
+        <p id="backend-status">Checking...</p>
+    </div>
+
+    <div class="card">
+        <h2>API Tests</h2>
+        <button onclick="testAuth()">Test Auth Endpoints</button>
+        <button onclick="testPlans()">Test Plans Endpoint</button>
+        <p id="api-result"></p>
+    </div>
+
+    <script>
+        // Check Frontend
+        document.getElementById('frontend-status').innerHTML =
+            (navigator.onLine ? '<span class="ok">✓ Online</span>' : '<span class="error">✗ Offline</span>') +
+            '<br>Frontend URL: ' + window.location.origin;
+
+        // Check Backend
+        fetch('http://localhost:3000/plans')
+            .then(r => document.getElementById('backend-status').innerHTML = '<span class="ok">✓ Backend Connected</span>')
+            .catch(e => document.getElementById('backend-status').innerHTML = '<span class="error">✗ Backend Error: ' + e.message + '</span>');
+
+        function testAuth() {
+            fetch('http://localhost:3000/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: 'test@test.com', password: 'test' })
+            })
+                .then(r => r.json())
+                .then(d => document.getElementById('api-result').innerHTML = '<span class="ok">✓ Auth API Working</span><br>Response: ' + JSON.stringify(d))
+                .catch(e => document.getElementById('api-result').innerHTML = '<span class="error">✗ Auth Error: ' + e.message + '</span>');
+        }
+
+        function testPlans() {
+            fetch('http://localhost:3000/plans')
+                .then(r => r.json())
+                .then(d => document.getElementById('api-result').innerHTML = '<span class="ok">✓ Plans API Working</span><br>Plans: ' + (Array.isArray(d) ? d.length + ' found' : 'Check format'))
+                .catch(e => document.getElementById('api-result').innerHTML = '<span class="error">✗ Plans Error: ' + e.message + '</span>');
+        }
+    </script>
+</body>
+
+</html>

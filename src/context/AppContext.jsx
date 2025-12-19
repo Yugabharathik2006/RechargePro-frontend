@@ -1,4 +1,5 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
+import API from '../api/axios';
 
 const AppContext = createContext();
 
@@ -17,9 +18,45 @@ export const AppProvider = ({ children }) => {
   const [rechargeAmount, setRechargeAmount] = useState(0);
   const [rechargeHistory, setRechargeHistory] = useState([]);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [plans, setPlans] = useState([]);
+  const [isLoadingPlans, setIsLoadingPlans] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [plansError, setPlansError] = useState(null);
+  const [historyError, setHistoryError] = useState(null);
 
   const toggleTheme = () => {
     setTheme(theme === 'light' ? 'dark' : 'light');
+  };
+
+  const fetchPlans = async () => {
+    setIsLoadingPlans(true);
+    setPlansError(null);
+    try {
+      const response = await API.get('/plans');
+      const data = response.data;
+
+      if (Array.isArray(data) && data.length === 0) {
+        // Auto-seed if empty
+        try {
+          await API.post('/plans/seed');
+          const seededResponse = await API.get('/plans');
+          setPlans(seededResponse.data);
+        } catch (seedError) {
+          console.warn('Failed to seed plans:', seedError);
+          setPlans([]);
+        }
+      } else if (Array.isArray(data)) {
+        setPlans(data);
+      } else if (data.data && Array.isArray(data.data)) {
+        setPlans(data.data);
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Failed to fetch plans';
+      console.error('Fetch plans error:', message);
+      setPlansError(message);
+    } finally {
+      setIsLoadingPlans(false);
+    }
   };
 
   const login = (userData) => {
@@ -30,15 +67,42 @@ export const AppProvider = ({ children }) => {
     setUser(null);
   };
 
-  const addRecharge = (rechargeData) => {
-    const newRecharge = {
-      id: Date.now(),
-      ...rechargeData,
-      timestamp: new Date().toISOString(),
-      status: 'completed'
-    };
-    setRechargeHistory(prev => [newRecharge, ...prev]);
-    return newRecharge;
+  const addRecharge = async (rechargeData) => {
+    try {
+      setIsProcessingPayment(true);
+      const response = await API.post('/transactions', rechargeData);
+      const data = response.data;
+
+      setRechargeHistory(prev => [data, ...prev]);
+      return { success: true, data };
+    } catch (error) {
+      const message = error.response?.data?.message || error.message || 'Recharge failed';
+      console.error('Recharge error:', message);
+      return { success: false, message };
+    } finally {
+      setIsProcessingPayment(false);
+    }
+  };
+
+  const fetchHistory = async () => {
+    setIsLoadingHistory(true);
+    setHistoryError(null);
+    try {
+      const response = await API.get('/transactions');
+      const data = response.data;
+
+      if (Array.isArray(data)) {
+        setRechargeHistory(data);
+      } else if (data.data && Array.isArray(data.data)) {
+        setRechargeHistory(data.data);
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Failed to fetch history';
+      console.error('Fetch history error:', message);
+      setHistoryError(message);
+    } finally {
+      setIsLoadingHistory(false);
+    }
   };
 
   const clearRechargeData = () => {
@@ -59,9 +123,16 @@ export const AppProvider = ({ children }) => {
     rechargeHistory,
     setRechargeHistory,
     addRecharge,
+    fetchHistory,
+    plans,
+    fetchPlans,
     clearRechargeData,
     isProcessingPayment,
-    setIsProcessingPayment
+    setIsProcessingPayment,
+    isLoadingPlans,
+    isLoadingHistory,
+    plansError,
+    historyError,
   };
 
   return (

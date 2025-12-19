@@ -1,7 +1,10 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import PlanCard from '../components/PlanCard';
+import Button from '../components/Button';
 
 const LandingPage = () => {
+  const navigate = useNavigate();
+
   const featuredPlans = [
     {
       id: 1,
@@ -39,7 +42,7 @@ const LandingPage = () => {
 
   return (
     <div className="min-h-screen">
-      
+
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 text-white py-20 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
@@ -53,18 +56,18 @@ const LandingPage = () => {
               Recharge your mobile instantly with the best plans, exclusive offers, and 24/7 support
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link 
-                to="/plans" 
-                className="bg-white text-blue-600 px-8 py-4 rounded-full font-bold hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+              <Button
+                onClick={() => navigate('/plans')}
+                className="bg-white text-blue-600 px-8 py-4 rounded-full font-bold hover:bg-gray-100"
               >
                 View All Plans
-              </Link>
-              <Link 
-                to="/signup" 
-                className="border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-blue-600 transition-all duration-300"
+              </Button>
+              <Button
+                onClick={() => navigate('/signup')}
+                className="bg-transparent border-2 border-white text-white px-8 py-4 rounded-full font-bold hover:bg-white hover:text-blue-600"
               >
                 Get Started
-              </Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -77,7 +80,7 @@ const LandingPage = () => {
             <h2 className="text-4xl font-bold text-gray-800 mb-4">Our Services</h2>
             <p className="text-xl text-gray-600">Everything you need for your mobile recharge</p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
             {services.map((service, index) => (
               <div key={index} className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-center">
@@ -97,16 +100,16 @@ const LandingPage = () => {
             <h2 className="text-4xl font-bold text-gray-800 mb-4">Featured Recharge Plans</h2>
             <p className="text-xl text-gray-600">Popular plans chosen by millions</p>
           </div>
-          
+
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {featuredPlans.map((plan) => (
               <PlanCard key={plan.id} plan={plan} />
             ))}
           </div>
-          
+
           <div className="text-center mt-12">
-            <Link 
-              to="/plans" 
+            <Link
+              to="/plans"
               className="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-8 py-4 rounded-full font-bold hover:from-blue-600 hover:to-purple-700 transition-all duration-300 transform hover:scale-105"
             >
               View All Plans →
@@ -146,8 +149,8 @@ const LandingPage = () => {
           <p className="text-xl text-gray-300 mb-8">
             Join millions of users who trust us for their mobile recharge needs
           </p>
-          <Link 
-            to="/signup" 
+          <Link
+            to="/signup"
             className="bg-gradient-to-r from-green-500 to-blue-500 text-white px-8 py-4 rounded-full font-bold hover:from-green-600 hover:to-blue-600 transition-all duration-300 transform hover:scale-105"
           >
             Create Account Now

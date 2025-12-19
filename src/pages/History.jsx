@@ -1,22 +1,27 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useApp } from '../context/AppContext';
+import Button from '../components/Button';
 import { Search, Filter, Download, Calendar, TrendingUp, CreditCard, Smartphone, Eye } from 'lucide-react';
 import Modal from '../components/Modal';
 
 const History = () => {
-  const { rechargeHistory } = useApp();
+  const { rechargeHistory, fetchHistory } = useApp();
   const [searchTerm, setSearchTerm] = useState('');
   const [filterOperator, setFilterOperator] = useState('all');
   const [sortBy, setSortBy] = useState('newest');
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
 
+  useEffect(() => {
+    fetchHistory();
+  }, []);
+
   // Filter and sort transactions
   const filteredTransactions = useMemo(() => {
     let filtered = rechargeHistory.filter(transaction => {
-      const matchesSearch = transaction.mobileNumber.includes(searchTerm) || 
-                           transaction.operator.name.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = transaction.mobileNumber.includes(searchTerm) ||
+        transaction.operator.name.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesOperator = filterOperator === 'all' || transaction.operator.name === filterOperator;
       return matchesSearch && matchesOperator;
     });
@@ -40,10 +45,10 @@ const History = () => {
       acc[t.operator.name] = (acc[t.operator.name] || 0) + 1;
       return acc;
     }, {});
-    const mostUsedOperator = Object.keys(operatorCounts).reduce((a, b) => 
+    const mostUsedOperator = Object.keys(operatorCounts).reduce((a, b) =>
       operatorCounts[a] > operatorCounts[b] ? a : b, 'None'
     );
-    
+
     return { totalAmount, avgAmount, mostUsedOperator, totalCount: rechargeHistory.length };
   }, [rechargeHistory]);
 
@@ -66,7 +71,7 @@ const History = () => {
         t.status
       ])
     ].map(row => row.join(',')).join('\n');
-    
+
     const blob = new Blob([csvContent], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -76,107 +81,107 @@ const History = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 pt-32 pb-20">
+    <div className="min-h-screen bg-gradient-to-br from-[#05060f] via-[#0b1021] to-[#0c132f] pt-32 pb-20 text-slate-100">
       <div className="max-w-7xl mx-auto px-6">
-        
+
         {/* Header */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-12"
         >
-          <h1 className="text-5xl md:text-6xl font-bold mb-6">
+          <h1 className="text-5xl md:text-6xl font-bold mb-6 drop-shadow-[0_4px_30px_rgba(0,255,255,0.35)]">
             <span className="gradient-text">Transaction</span>
             <br />
-            <span className="bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-fuchsia-600 to-cyan-500 bg-clip-text text-transparent">
               History
             </span>
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-slate-300 max-w-2xl mx-auto">
             Comprehensive overview of all your mobile recharge transactions
           </p>
         </motion.div>
 
         {/* Enhanced Stats Cards */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12"
         >
-          <div className="bg-white rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+          <div className="bg-slate-900/70 border border-cyan-500/20 rounded-2xl shadow-[0_0_30px_rgba(0,255,255,0.12)] p-6 hover:shadow-[0_0_40px_rgba(255,0,128,0.15)] transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
                 <CreditCard className="text-white" size={24} />
               </div>
               <TrendingUp className="text-green-500" size={20} />
             </div>
-            <div className="text-3xl font-bold text-gray-800 mb-1">{stats.totalCount}</div>
-            <div className="text-gray-600 text-sm">Total Transactions</div>
+            <div className="text-3xl font-bold text-slate-100 mb-1">{stats.totalCount}</div>
+            <div className="text-slate-400 text-sm">Total Transactions</div>
           </div>
-          
-          <div className="bg-white rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+
+          <div className="bg-slate-900/70 border border-fuchsia-500/20 rounded-2xl shadow-[0_0_30px_rgba(255,0,128,0.12)] p-6 hover:shadow-[0_0_40px_rgba(0,255,255,0.15)] transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl flex items-center justify-center">
                 <span className="text-white text-lg font-bold">₹</span>
               </div>
               <TrendingUp className="text-green-500" size={20} />
             </div>
-            <div className="text-3xl font-bold text-gray-800 mb-1">₹{stats.totalAmount}</div>
-            <div className="text-gray-600 text-sm">Total Amount Spent</div>
+            <div className="text-3xl font-bold text-slate-100 mb-1">₹{stats.totalAmount}</div>
+            <div className="text-slate-400 text-sm">Total Amount Spent</div>
           </div>
-          
-          <div className="bg-white rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+
+          <div className="bg-slate-900/70 border border-emerald-500/20 rounded-2xl shadow-[0_0_30px_rgba(0,255,128,0.12)] p-6 hover:shadow-[0_0_40px_rgba(255,0,128,0.15)] transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-orange-500 to-red-600 rounded-xl flex items-center justify-center">
                 <span className="text-white text-lg font-bold">₹</span>
               </div>
               <Calendar className="text-blue-500" size={20} />
             </div>
-            <div className="text-3xl font-bold text-gray-800 mb-1">₹{stats.avgAmount}</div>
-            <div className="text-gray-600 text-sm">Average Per Recharge</div>
+            <div className="text-3xl font-bold text-slate-100 mb-1">₹{stats.avgAmount}</div>
+            <div className="text-slate-400 text-sm">Average Per Recharge</div>
           </div>
 
-          <div className="bg-white rounded-2xl shadow-xl p-6 hover:shadow-2xl transition-all duration-300">
+          <div className="bg-slate-900/70 border border-indigo-500/20 rounded-2xl shadow-[0_0_30px_rgba(128,0,255,0.12)] p-6 hover:shadow-[0_0_40px_rgba(0,255,255,0.15)] transition-all duration-300">
             <div className="flex items-center justify-between mb-4">
               <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl flex items-center justify-center">
                 <Smartphone className="text-white" size={24} />
               </div>
               <TrendingUp className="text-purple-500" size={20} />
             </div>
-            <div className="text-lg font-bold text-gray-800 mb-1">{stats.mostUsedOperator}</div>
-            <div className="text-gray-600 text-sm">Most Used Operator</div>
+            <div className="text-lg font-bold text-slate-100 mb-1">{stats.mostUsedOperator}</div>
+            <div className="text-slate-400 text-sm">Most Used Operator</div>
           </div>
         </motion.div>
 
         {/* Search and Filter Controls */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
-          className="bg-white rounded-2xl shadow-xl p-6 mb-8"
+          className="bg-slate-900/70 border border-cyan-500/20 rounded-2xl shadow-[0_0_35px_rgba(0,255,255,0.15)] p-6 mb-8"
         >
           <div className="flex flex-col lg:flex-row gap-4 items-center justify-between">
             <div className="flex flex-col sm:flex-row gap-4 flex-1">
               {/* Search */}
               <div className="relative flex-1 max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-300" size={20} />
                 <input
                   type="text"
                   placeholder="Search by mobile number or operator..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-3 bg-slate-950/60 border-2 border-cyan-500/30 text-slate-100 rounded-xl focus:border-fuchsia-500 focus:outline-none transition-colors placeholder:text-slate-500"
                 />
               </div>
 
               {/* Filter by Operator */}
               <div className="relative">
-                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-cyan-300" size={20} />
                 <select
                   value={filterOperator}
                   onChange={(e) => setFilterOperator(e.target.value)}
-                  className="pl-10 pr-8 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors appearance-none bg-white"
+                  className="pl-10 pr-8 py-3 bg-slate-950/60 border-2 border-cyan-500/30 text-slate-100 rounded-xl focus:border-fuchsia-500 focus:outline-none transition-colors appearance-none"
                 >
                   <option value="all">All Operators</option>
                   {operators.map(op => (
@@ -189,7 +194,7 @@ const History = () => {
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-500 focus:outline-none transition-colors appearance-none bg-white"
+                className="px-4 py-3 bg-slate-950/60 border-2 border-cyan-500/30 text-slate-100 rounded-xl focus:border-fuchsia-500 focus:outline-none transition-colors appearance-none"
               >
                 <option value="newest">Newest First</option>
                 <option value="oldest">Oldest First</option>
@@ -199,33 +204,31 @@ const History = () => {
             </div>
 
             {/* Export Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <Button
               onClick={exportData}
-              className="flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-purple-700 transition-all duration-300 shadow-lg"
+              className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white hover:from-cyan-400 hover:to-fuchsia-700 shadow-[0_0_25px_rgba(255,0,128,0.25)]"
+              icon={Download}
             >
-              <Download size={20} />
-              <span>Export CSV</span>
-            </motion.button>
+              Export CSV
+            </Button>
           </div>
         </motion.div>
 
         {/* Transaction List */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
-          className="bg-white rounded-2xl shadow-xl overflow-hidden"
+          className="bg-slate-900/70 border border-cyan-500/20 rounded-2xl shadow-[0_0_35px_rgba(0,255,255,0.15)] overflow-hidden"
         >
           {filteredTransactions.length === 0 ? (
             <div className="p-12 text-center">
               <div className="text-6xl mb-4">📱</div>
-              <h3 className="text-2xl font-bold text-gray-800 mb-2">
+              <h3 className="text-2xl font-bold text-slate-100 mb-2">
                 {rechargeHistory.length === 0 ? 'No Transactions Yet' : 'No Matching Transactions'}
               </h3>
-              <p className="text-gray-600">
-                {rechargeHistory.length === 0 
+              <p className="text-slate-300">
+                {rechargeHistory.length === 0
                   ? 'Your recharge history will appear here after your first transaction'
                   : 'Try adjusting your search or filter criteria'
                 }
@@ -233,12 +236,12 @@ const History = () => {
             </div>
           ) : (
             <div className="divide-y divide-gray-100">
-              <div className="p-6 bg-gray-50 border-b">
-                <h3 className="text-xl font-bold text-gray-800">
+              <div className="p-6 bg-slate-900/70 border-b border-slate-800">
+                <h3 className="text-xl font-bold text-slate-100">
                   Transaction History ({filteredTransactions.length} results)
                 </h3>
               </div>
-              
+
               <AnimatePresence>
                 {filteredTransactions.map((transaction, index) => (
                   <motion.div
@@ -247,22 +250,22 @@ const History = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ delay: index * 0.05 }}
-                    className="p-6 hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="p-6 hover:bg-slate-900/60 transition-colors cursor-pointer"
                     onClick={() => handleViewDetails(transaction)}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
-                        <div className="w-14 h-14 bg-white rounded-xl flex items-center justify-center p-2 shadow-md">
-                          <img 
-                            src={transaction.operator.logo} 
+                        <div className="w-14 h-14 bg-slate-900/80 rounded-xl flex items-center justify-center p-2 shadow-md border border-slate-800">
+                          <img
+                            src={transaction.operator.logo}
                             alt={`${transaction.operator.name} logo`}
                             className="w-full h-full object-contain"
                           />
                         </div>
                         <div>
-                          <div className="font-bold text-lg text-gray-800">{transaction.operator.name}</div>
-                          <div className="text-gray-600">{transaction.mobileNumber}</div>
-                          <div className="text-sm text-gray-500">
+                          <div className="font-bold text-lg text-slate-100">{transaction.operator.name}</div>
+                          <div className="text-slate-300">{transaction.mobileNumber}</div>
+                          <div className="text-sm text-slate-500">
                             {new Date(transaction.timestamp).toLocaleDateString('en-IN', {
                               year: 'numeric',
                               month: 'short',
@@ -273,16 +276,16 @@ const History = () => {
                           </div>
                         </div>
                       </div>
-                      
+
                       <div className="text-right">
-                        <div className="font-bold text-2xl text-green-600">₹{transaction.amount}</div>
-                        <div className="text-sm text-gray-500 mb-1">{transaction.transactionId}</div>
+                        <div className="font-bold text-2xl text-emerald-400">₹{transaction.amount}</div>
+                        <div className="text-sm text-slate-500 mb-1">{transaction.transactionId}</div>
                         <div className="flex items-center justify-end space-x-2">
                           <div className="flex items-center space-x-1">
                             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                            <span className="text-xs text-green-600 font-medium">Completed</span>
+                            <span className="text-xs text-emerald-400 font-medium">Completed</span>
                           </div>
-                          <Eye size={16} className="text-gray-400" />
+                          <Eye size={16} className="text-slate-400" />
                         </div>
                       </div>
                     </div>
@@ -305,8 +308,8 @@ const History = () => {
           <div className="p-6">
             <div className="flex items-center space-x-4 mb-6">
               <div className="w-16 h-16 bg-white rounded-xl flex items-center justify-center p-2 shadow-md">
-                <img 
-                  src={selectedTransaction.operator.logo} 
+                <img
+                  src={selectedTransaction.operator.logo}
                   alt={`${selectedTransaction.operator.name} logo`}
                   className="w-full h-full object-contain"
                 />
